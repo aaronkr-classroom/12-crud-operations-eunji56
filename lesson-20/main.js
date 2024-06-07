@@ -15,10 +15,13 @@ const express = require("express"), // express를 요청
  */
 const mongoose = require("mongoose"); // mongoose를 요청
 // 데이터베이스 연결 설정
-mongoose.connect("mongodb://127.0.0.1:27017/ut-nodejs", {
-  useNewUrlParser: true,
+mongoose.connect(
+  "mongodb+srv://eunji:LxwX3EaENwfXug92@ut-node.jbuqzp0.mongodb.net/?retryWrites=true&w=majority&appName=UT-Node" //Atlas경로
+);
+const db = mongoose.connection;
+db.once("open",() => {
+  console.log("Connected to MONGODB!!!");
 });
-
 app.set("port", process.env.PORT || 3000);
 
 /**
@@ -54,10 +57,12 @@ app.use("/", router);
  * Listing 20.3 (p. 292)
  * 애플리케이션에 method-override 추가
  */
-/**
- * @TODO: methodOverride를 미들웨어로 사용하기 위한 애플리케이션 라유터 설정
- */
-
+const methodOverride = require('method-override');
+router.use(
+  methodOverride("_method", {
+    methods:["POST","GET"]
+  })
+);
 /**
  * Listing 12.6 (p. 178)
  * 각 페이지 및 요청 타입을 위한 라우트 추가
@@ -73,7 +78,7 @@ router.get("/subscribers", subscribersController.getAllSubscribers); // 모든 �
  * Listing 18.10 (p. 269)
  * userController.js를 위에서 요청
  */
-app.get("/users", usersController.index, usersController.indexView); // index 라우트 생성
+router.get("/users", usersController.index, usersController.indexView); // index 라우트 생성
 
 /**
  * Listing 19.3 (p. 280)
@@ -91,6 +96,17 @@ router.get("/users/:id", usersController.show, usersController.showView);
  * Listing 20.7 (p. 296)
  * edit및 update 라우트 추가
  */
+router.get("/users/:id/edit", usersController.edit);
+router.put(
+  "/users/:id/update",
+  usersController.update,
+  usersController.redirectView
+);
+router.delete(
+  "/users/:id/delete",
+  usersController.delete,
+  usersController.redirectView
+);
 /**
  * @TODO: viewing을 처리하기 위한 라우트 추가
  */
